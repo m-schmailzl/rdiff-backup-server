@@ -1,12 +1,6 @@
 #!/bin/bash
 # first time setup
 
-if [ -z "$SERVER_DOMAIN" ] || [ -z "$SERVER_PORT" ]
-then
-	echo "Error: SERVER_DOMAIN and SERVER_PORT need to be set."
-	exit 1
-fi
-
 cd /backup/files
 
 if ! [ -e ssh_host_ecdsa_key ]
