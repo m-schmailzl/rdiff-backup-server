@@ -81,12 +81,12 @@ then
 	if ! [ -z "$ADMIN_MAIL"]
 	then
 		echo "Sending mail to admin..."
-		echo -e "From: $EMAIL_FROM\nTo: $ADMIN_MAIL\nSubject: Backup rotation on '$SERVER_DOMAIN' failed!\n\nThe backup rotation on '$SERVER_DOMAIN' failed:\nCheck the container logs for details." | ssmtp -C "$SSMTP_CONF" "$ADMIN_MAIL"
+		echo -e "From: $EMAIL_FROM\nTo: $ADMIN_MAIL\nSubject: Backup rotation failed!\n\nThe backup rotation failed:\nCheck the container logs for details." | ssmtp -C "$SSMTP_CONF" "$ADMIN_MAIL"
 		if [ $? = 0 ]
 		then
 			echo "An email has been sent."
 		else
-			echo "Error: Failed to send an email to '$ADMIN_MAIL'. Check your ssmtp settings, EMAIL_FROM and ADMIN_MAIL."
+			echo "Error: Failed to send an email to '$ADMIN_MAIL'. Check your ssmtp settings, ADMIN_MAIL and EMAIL_FROM."
 		fi
 	fi
 else

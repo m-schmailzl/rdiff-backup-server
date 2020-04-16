@@ -8,6 +8,7 @@ then
 fi
 
 echo "Starting backup server..."
+echo "$(date)"
 
 if [ -z "$ROTATION_HOUR" ]
 then
