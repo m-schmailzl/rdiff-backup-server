@@ -18,7 +18,6 @@ ENV SSMTP_TLS yes
 ENV SSMTP_STARTTLS no
 
 VOLUME /backup/files
-VOLUME /media/backups/databases
 
 EXPOSE 22
 

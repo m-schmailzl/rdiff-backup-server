@@ -1,6 +1,7 @@
 #!/bin/bash
 # first time setup
 
+mkdir -p "$TARGET_DIR"
 cd /backup/files
 
 if ! [ -e ssh_host_ecdsa_key ]
@@ -13,7 +14,7 @@ fi
 if ! [ -e id_rsa.pub ]
 then
 	echo "Generating ssh authentification key..."
-	ssh-keygen -t rsa -b 4096 -f id_rsa
+	ssh-keygen -N "" -t rsa -b 4096 -f id_rsa
 	if ! [ $? = 0 ]; then exit $?; fi
 fi
 
@@ -25,4 +26,10 @@ if ! [ -z "$ADMIN_MAIL" ]
 then
 	/backup/generate_ssmtp_conf.sh
 	if ! [ $? = 0 ]; then exit $?; fi
+	
+	if [ -z "$EMAIL_FROM" ]
+	then
+		echo "Error: You have set ADMIN_MAIL but not EMAIL_FROM. You need to set both."
+		exit 1
+	fi
 fi
