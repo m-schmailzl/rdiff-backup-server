@@ -6,7 +6,9 @@ This image is not finished yet. Description will follow.
 
 ##### Available options: 
 
-**TZ TARGET_DIR** /media/backups
+**TZ**
+
+**TARGET_DIR** /media/backups
 
 **ADMIN_MAIL**
 
