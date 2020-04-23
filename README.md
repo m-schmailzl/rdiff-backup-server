@@ -4,7 +4,7 @@ Docker image to backup files and databases with rdiff-backup
 
 This image is not finished yet. Description will follow.
 
-##### Available options: 
+#### Available options: 
 
 **TZ**
 
@@ -40,8 +40,8 @@ This image is not finished yet. Description will follow.
 
 **SSMTP_CA_FILE**
 
-##### Volumes:
+#### Volumes:
 
 **/media/backups** : Default backup directory
 
-**/backup/files** : Permanant files of the container
+**/backup/files** : Permanent files of the container
