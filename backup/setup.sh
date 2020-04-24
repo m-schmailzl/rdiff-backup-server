@@ -4,10 +4,10 @@
 mkdir -p "$TARGET_DIR"
 cd /backup/files
 
-if ! [ -e ssh_host_ecdsa_key ]
+if ! [ -e ssh_host_ed25519_key ]
 then
 	echo "Generating ssh host key..."
-	ssh-keygen -N "" -t ecdsa -b 521 -f ssh_host_ecdsa_key
+	ssh-keygen -N "" -t ed25519 -a 256 -f ssh_host_ed25519_key
 	if ! [ $? = 0 ]; then exit $?; fi
 fi
 
