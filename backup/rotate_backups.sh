@@ -90,5 +90,5 @@ then
 		fi
 	fi
 else
-	echo "Backup finished without errors."
+	echo "Backup rotation finished without errors."
 fi
