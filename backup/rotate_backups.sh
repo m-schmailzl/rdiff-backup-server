@@ -78,7 +78,7 @@ if $FAILED
 then
 	echo "BACKUP ROTATION FAILED!"
 	
-	if ! [ -z "$ADMIN_MAIL"]
+	if ! [ -z "$ADMIN_MAIL" ]
 	then
 		echo "Sending mail to admin..."
 		echo -e "From: $EMAIL_FROM\nTo: $ADMIN_MAIL\nSubject: Backup rotation failed!\n\nThe backup rotation failed:\nCheck the container logs for details." | ssmtp -C "$SSMTP_CONF" "$ADMIN_MAIL"
