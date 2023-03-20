@@ -2,7 +2,7 @@
 # deletes all old increments until there is more than $ROTATION_SPACE (in GB) disk space available
 
 echo "-----------------------------------------------------------------------------"
-echo "Rotating backup on $(date)"
+echo "Rotating backup on $(date) in $TARGET_DIR"
 echo "-----------------------------------------------------------------------------"
 
 cd "$TARGET_DIR"
@@ -46,13 +46,18 @@ then
 				oldest_increment=$(rdiff-backup --list-increments $backup_client | sed -n 2p | sed -e 's/.*increments.\(.*\).dir.*/\1/')
 				if [ $? = 0 ]
 				then
-					date=$(date -d "$oldest_increment" "+%s")
-					now=$(date -d "now" "+%s")
-					diff=$((($now-$date)/86400))
-					
-					if (( $diff > $max ))
+					if [[ "$oldest_increment" == Current* ]]
 					then
-						max=$diff
+						echo "There are no increments left to delete!"
+					else
+						date=$(date -d "$oldest_increment" "+%s")
+						now=$(date -d "now" "+%s")
+						diff=$((($now-$date)/86400))
+
+						if (( $diff > $max ))
+						then
+							max=$diff
+						fi
 					fi
 				else
 					FAILED=true
