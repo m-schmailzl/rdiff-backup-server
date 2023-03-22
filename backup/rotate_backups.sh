@@ -8,11 +8,27 @@ echo "--------------------------------------------------------------------------
 cd "$TARGET_DIR"
 FAILED=false
 
+if [ "$ROTATION_CHECK" == "yes" ] || [ "$ROTATION_CHECK" == 1 ]
+then
+	for backup_client in */
+	do
+		echo "--- Checking $backup_client..."
+		if [ "$ROTATION_CHECK_FORCE" == "yes" ] || [ "$ROTATION_CHECK_FORCE" == 1 ]
+		then
+			rdiff-backup --check-destination-dir --force "$backup_client"
+			if ! [ $? = 0 ]; then FAILED=true; fi
+		else
+			rdiff-backup --check-destination-dir "$backup_client"
+			if ! [ $? = 0 ]; then FAILED=true; fi
+		fi
+	done
+fi
+
 if ! [ -z "$ROTATION_EXPIRE" ]
 then
 	for backup_client in */
 	do
-		echo "Removing backups older than $ROTATION_EXPIRE in '$backup_client'..."
+		echo "--- Removing backups older than $ROTATION_EXPIRE from '$backup_client'..."
 		rdiff-backup --remove-older-than "$ROTATION_EXPIRE" --force "$backup_client"
 		if ! [ $? = 0 ]; then FAILED=true; fi
 	done
@@ -77,11 +93,12 @@ then
 	done
 fi
 
+
 if $FAILED
 then
 	echo "--- BACKUP ROTATION FAILED!"
 	
-	if ! [ -z "$ADMIN_MAIL"]
+	if ! [ -z "$ADMIN_MAIL" ]
 	then
 		echo "Sending mail to admin..."
 		echo -e "From: $EMAIL_FROM\nTo: $ADMIN_MAIL\nSubject: Backup rotation failed!\n\nThe backup rotation failed:\nCheck the container logs for details." | ssmtp -C "$SSMTP_CONF" "$ADMIN_MAIL"
