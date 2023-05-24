@@ -15,10 +15,10 @@ then
 		echo "--- Checking $backup_client..."
 		if [ "$ROTATION_CHECK_FORCE" == "yes" ] || [ "$ROTATION_CHECK_FORCE" == 1 ]
 		then
-			rdiff-backup --check-destination-dir --force "$backup_client"
+			rdiff-backup --force regress "$backup_client"
 			if ! [ $? = 0 ]; then FAILED=true; fi
 		else
-			rdiff-backup --check-destination-dir "$backup_client"
+			rdiff-backup regress "$backup_client"
 			if ! [ $? = 0 ]; then FAILED=true; fi
 		fi
 	done
@@ -29,7 +29,7 @@ then
 	for backup_client in */
 	do
 		echo "--- Removing backups older than $ROTATION_EXPIRE from '$backup_client'..."
-		rdiff-backup --remove-older-than "$ROTATION_EXPIRE" --force "$backup_client"
+		rdiff-backup --force remove increments --older-than "$ROTATION_EXPIRE" "$backup_client"
 		if ! [ $? = 0 ]; then FAILED=true; fi
 	done
 fi
@@ -57,7 +57,7 @@ then
 			for backup_client in ${partitions[$device]}
 			do
 				# get number of days since the oldest backup
-				oldest_increment=$(rdiff-backup --list-increments $backup_client | sed -n 2p | sed -e 's/.*increments.\(.*\).dir.*/\1/')
+				oldest_increment=$(rdiff-backup list increments "$backup_client" | sed -n 2p | sed -e 's/.*increments.\(.*\).dir.*/\1/')
 				if [ $? = 0 ]
 				then
 					if [[ "$oldest_increment" == Current* ]]
@@ -84,7 +84,7 @@ then
 				for backup_client in ${partitions[$device]}
 				do
 					echo "--- Deleting all increments older than $max days from $(basename $backup_client)..."
-					rdiff-backup --remove-older-than "${max}D" --force "$backup_client"
+					rdiff-backup --force remove increments --older-than "${max}D" "$backup_client"
 					if ! [ $? = 0 ]; then FAILED=true; fi
 				done
 				((max--))
