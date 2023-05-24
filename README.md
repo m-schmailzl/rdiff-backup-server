@@ -20,6 +20,10 @@ This image is not finished yet. Description will follow.
 
 **ROTATION_SPACE**
 
+**ROTATION_CHECK**
+
+**ROTATION_CHECK_FORCE**
+
 **SSMTP_CONF** /backup/files/ssmtp.conf
 
 **SSMTP_MAILHUB**
@@ -36,7 +40,7 @@ This image is not finished yet. Description will follow.
 
 **SSMTP_TLS** yes
 
-**SSMTP_STARTTLS** no
+**SSMTP_STARTTLS** yes
 
 **SSMTP_CA_FILE**
 

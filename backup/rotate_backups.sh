@@ -2,17 +2,33 @@
 # deletes all old increments until there is more than $ROTATION_SPACE (in GB) disk space available
 
 echo "-----------------------------------------------------------------------------"
-echo "Rotating backup on $(date)"
+echo "Rotating backup on $(date) in $TARGET_DIR"
 echo "-----------------------------------------------------------------------------"
 
 cd "$TARGET_DIR"
 FAILED=false
 
+if [ "$ROTATION_CHECK" == "yes" ] || [ "$ROTATION_CHECK" == 1 ]
+then
+	for backup_client in */
+	do
+		echo "--- Checking $backup_client..."
+		if [ "$ROTATION_CHECK_FORCE" == "yes" ] || [ "$ROTATION_CHECK_FORCE" == 1 ]
+		then
+			rdiff-backup --check-destination-dir --force "$backup_client"
+			if ! [ $? = 0 ]; then FAILED=true; fi
+		else
+			rdiff-backup --check-destination-dir "$backup_client"
+			if ! [ $? = 0 ]; then FAILED=true; fi
+		fi
+	done
+fi
+
 if ! [ -z "$ROTATION_EXPIRE" ]
 then
 	for backup_client in */
 	do
-		echo "Removing backups older than $ROTATION_EXPIRE in '$backup_client'..."
+		echo "--- Removing backups older than $ROTATION_EXPIRE from '$backup_client'..."
 		rdiff-backup --remove-older-than "$ROTATION_EXPIRE" --force "$backup_client"
 		if ! [ $? = 0 ]; then FAILED=true; fi
 	done
@@ -34,10 +50,8 @@ then
 		
 		if (( $(($ROTATION_SPACE*1024*1024)) < $(df --output=avail $path | tail -1) ))
 		then
-			echo "Free disk space is over ${ROTATION_SPACE}GB."
-			echo "Rotation will be skipped."
+			echo "--- Free disk space on $(df --output=target $path | tail -1) is over ${ROTATION_SPACE}GB. Rotation will be skipped."
 		else
-		
 			# getting number of days since the oldest backup on the device
 			max=0
 			for backup_client in ${partitions[$device]}
@@ -46,13 +60,18 @@ then
 				oldest_increment=$(rdiff-backup --list-increments $backup_client | sed -n 2p | sed -e 's/.*increments.\(.*\).dir.*/\1/')
 				if [ $? = 0 ]
 				then
-					date=$(date -d "$oldest_increment" "+%s")
-					now=$(date -d "now" "+%s")
-					diff=$((($now-$date)/86400))
-					
-					if (( $diff > $max ))
+					if [[ "$oldest_increment" == Current* ]]
 					then
-						max=$diff
+						echo "--- $backup_client: There are no increments left to delete!"
+					else
+						date=$(date -d "$oldest_increment" "+%s")
+						now=$(date -d "now" "+%s")
+						diff=$((($now-$date)/86400))
+
+						if (( $diff > $max ))
+						then
+							max=$diff
+						fi
 					fi
 				else
 					FAILED=true
@@ -64,7 +83,7 @@ then
 			do
 				for backup_client in ${partitions[$device]}
 				do
-					echo "Deleting all increments older than $max days from $(basename $backup_client)..."
+					echo "--- Deleting all increments older than $max days from $(basename $backup_client)..."
 					rdiff-backup --remove-older-than "${max}D" --force "$backup_client"
 					if ! [ $? = 0 ]; then FAILED=true; fi
 				done
@@ -74,9 +93,10 @@ then
 	done
 fi
 
+
 if $FAILED
 then
-	echo "BACKUP ROTATION FAILED!"
+	echo "--- BACKUP ROTATION FAILED!"
 	
 	if ! [ -z "$ADMIN_MAIL" ]
 	then
@@ -90,5 +110,5 @@ then
 		fi
 	fi
 else
-	echo "Backup rotation finished without errors."
+	echo "--- Backup rotation finished without errors."
 fi

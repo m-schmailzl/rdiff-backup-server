@@ -18,6 +18,10 @@ then
 	if ! [ $? = 0 ]; then exit $?; fi
 fi
 
+chown -R root .
+chmod 644 *
+chmod 600 ssh_host_ed25519_key id_rsa
+
 mkdir -p /backup/.ssh
 cp -f id_rsa.pub /backup/.ssh/authorized_keys
 if ! [ $? = 0 ]; then exit $?; fi

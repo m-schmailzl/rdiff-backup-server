@@ -13,11 +13,12 @@ COPY sshd_config /etc/ssh
 COPY backup /backup
 RUN chmod 700 /backup/*.sh
 
-ENV TARGET_DIR /media/backups
-ENV SSMTP_CONF /backup/files/ssmtp.conf
-ENV SSMTP_AUTHMETHOD LOGIN
-ENV SSMTP_TLS yes
-ENV SSMTP_STARTTLS no
+ENV TARGET_DIR="/media/backups" \
+	SSMTP_CONF="/backup/files/ssmtp.conf" \
+	SSMTP_AUTHMETHOD=LOGIN \
+	SSMTP_TLS=yes \
+	SSMTP_STARTTLS=yes \
+	ROTATION_CHECK=yes
 
 VOLUME /backup/files
 
