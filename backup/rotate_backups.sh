@@ -1,6 +1,13 @@
 #!/bin/bash
 # deletes all old increments until there is more than $ROTATION_SPACE (in GB) disk space available
 
+# wrapper for output into logfile
+if ! [ -z "$ROTATION_LOG_FILE" ] && [ "$1" != "run" ]
+then
+    "./$0" run 2>&1 | tee "$ROTATION_LOG_FILE"
+	exit $?
+fi
+
 echo "-----------------------------------------------------------------------------"
 echo "Rotating backup on $(date) in $TARGET_DIR"
 echo "-----------------------------------------------------------------------------"
@@ -30,7 +37,8 @@ then
 	do
 		echo "--- Removing backups older than $ROTATION_EXPIRE from '$backup_client'..."
 		rdiff-backup --force remove increments --older-than "$ROTATION_EXPIRE" "$backup_client"
-		if [[ $? -ne 0 ]] && [[ $? -ne 2 ]]; then FAILED=true; fi
+		returned=$?
+		if [[ $returned -ne 0 ]] && [[ $returned -ne 2 ]]; then FAILED=true; fi
 	done
 fi
 
@@ -50,7 +58,7 @@ then
 		
 		if (( $(($ROTATION_SPACE*1024*1024)) < $(df --output=avail $path | tail -1) ))
 		then
-			echo "--- Free disk space on $(df --output=target $path | tail -1) is over ${ROTATION_SPACE}GB. Rotation will be skipped."
+			echo "--- Free disk space on $(df --output=target $path | tail -1) is over ${ROTATION_SPACE} GB. Rotation will be skipped."
 		else
 			# getting number of days since the oldest backup on the device
 			max=0
@@ -85,7 +93,8 @@ then
 				do
 					echo "--- Deleting all increments older than $max days from $(basename $backup_client)..."
 					rdiff-backup --force remove increments --older-than "${max}D" "$backup_client"
-					if [[ $? -ne 0 ]] && [[ $? -ne 2 ]]; then FAILED=true; fi
+					returned=$?
+					if [[ $returned -ne 0 ]] && [[ $returned -ne 2 ]]; then FAILED=true; fi
 				done
 				((max--))
 			done
@@ -101,7 +110,12 @@ then
 	if ! [ -z "$ADMIN_MAIL" ]
 	then
 		echo "Sending mail to admin..."
-		echo -e "From: $EMAIL_FROM\nTo: $ADMIN_MAIL\nSubject: Backup rotation failed!\n\nThe backup rotation failed:\nCheck the container logs for details." | ssmtp -C "$SSMTP_CONF" "$ADMIN_MAIL"
+		if ! [ -z "$ROTATION_LOG_FILE" ]
+		then
+			output=$(cat "$ROTATION_LOG_FILE")
+			output="$output\n\n"
+		fi
+		echo -e "From: $EMAIL_FROM\nTo: $ADMIN_MAIL\nSubject: Backup rotation failed!\n\nThe backup rotation failed:\n$output\n\nCheck the container/cron logs for more details." | ssmtp -C "$SSMTP_CONF" "$ADMIN_MAIL"
 		if [ $? = 0 ]
 		then
 			echo "An email has been sent."
