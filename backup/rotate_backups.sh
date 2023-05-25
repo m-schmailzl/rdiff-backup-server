@@ -30,7 +30,7 @@ then
 	do
 		echo "--- Removing backups older than $ROTATION_EXPIRE from '$backup_client'..."
 		rdiff-backup --force remove increments --older-than "$ROTATION_EXPIRE" "$backup_client"
-		if ! [ $? = 0 ]; then FAILED=true; fi
+		if [[ $? -ne 0 ]] && [[ $? -ne 2 ]]; then FAILED=true; fi
 	done
 fi
 
@@ -85,7 +85,7 @@ then
 				do
 					echo "--- Deleting all increments older than $max days from $(basename $backup_client)..."
 					rdiff-backup --force remove increments --older-than "${max}D" "$backup_client"
-					if ! [ $? = 0 ]; then FAILED=true; fi
+					if [[ $? -ne 0 ]] && [[ $? -ne 2 ]]; then FAILED=true; fi
 				done
 				((max--))
 			done
