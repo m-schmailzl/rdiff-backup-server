@@ -14,6 +14,7 @@ COPY backup /backup
 RUN chmod 700 /backup/*.sh
 
 ENV TARGET_DIR="/media/backups" \
+	ROTATION_LOG_FILE="/backup/files/rotation.log" \
 	SSMTP_CONF="/backup/files/ssmtp.conf" \
 	SSMTP_AUTHMETHOD=LOGIN \
 	SSMTP_TLS=yes \

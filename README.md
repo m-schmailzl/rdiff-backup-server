@@ -14,6 +14,8 @@ This image is not finished yet. Description will follow.
 
 **EMAIL_FROM**
 
+**ROTATION_LOG_FILE** /backup/files/rotation.log
+
 **ROTATION_HOUR**
 
 **ROTATION_EXPIRE**
